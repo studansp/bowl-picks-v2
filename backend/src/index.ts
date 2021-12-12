@@ -50,6 +50,7 @@ const getGames = async (): Promise<Game[]> => {
 
 const getPicks = async (username: string): Promise<Picks | null> => {
   const picks = new Picks();
+
   picks.username = username;
 
   try {
@@ -67,7 +68,7 @@ const setPicks = async (username: string, body: string): Promise<Picks> => {
   picks.username = username;
   picks.year = 2021;
 
-  // TODO Invalid input
+  // TODO Invalid input?
   const parsed: Picks = JSON.parse(body);
 
   const allGames = await getGames();
@@ -89,6 +90,8 @@ export const handler = async (event: InputEvent): Promise<Response> => {
   const method = event.httpMethod;
   const { path } = event;
   const username = event.requestContext.authorizer.claims['cognito:username'];
+
+  console.log(`Handling event ${method} ${path} ${username}`);
 
   let result: unknown;
 

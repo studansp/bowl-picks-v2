@@ -7,7 +7,7 @@
     "@aws/dynamodb-data-mapper-annotations": "^0.7.3"
   },
   "scripts": {
-    "clean": "rm -rf build build-backend build-frontend",
+    "clean": "rm -rf build",
     "lint": "eslint src/**",
     "fix": "eslint --fix src/**",
     "build": "tsc --target ES2018 --moduleResolution node --module commonjs --experimentalDecorators true --outDir build/ src/index.ts && cp -r node_modules build"
