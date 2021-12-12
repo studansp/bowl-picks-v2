@@ -1,4 +1,5 @@
 import * as React from 'react';
+import IconButton from '@mui/material/IconButton';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
@@ -8,6 +9,9 @@ import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import { makeStyles } from '@mui/styles';
 import { Theme } from '@mui/material';
+import { useState } from 'react';
+import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
+import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import { Picks } from '../data';
 
 interface Props {
@@ -25,24 +29,58 @@ const useStyles = makeStyles<Theme>((theme) => ({
 }));
 
 export const PicksGrid: React.FunctionComponent<Props> = ({ picks }: Props) => {
+  const [picksState, setPicksState] = useState<Picks>(picks);
   const classes = useStyles();
+
+  const adjustConfidence = (id: string, modifer: number): void => {
+    // eslint-disable-next-line
+    debugger;
+    const clonedPicksState: Picks = JSON.parse(JSON.stringify(picksState));
+
+    for (let i = 0; i < clonedPicksState.picks.length; i += 1) {
+      if (clonedPicksState.picks[i].id === id) {
+        const temp = clonedPicksState.picks[i];
+
+        clonedPicksState.picks[i] = clonedPicksState.picks[i + modifer];
+        clonedPicksState.picks[i + modifer] = temp;
+        break;
+      }
+    }
+
+    setPicksState(clonedPicksState);
+  };
 
   return (
     <TableContainer component={Paper}>
       <Table sx={{ minWidth: 650 }} aria-label="simple table">
         <TableHead className={classes.header}>
           <TableRow>
+            <TableCell>Adjust Confidence</TableCell>
             <TableCell>Game</TableCell>
             <TableCell align="right">Home</TableCell>
             <TableCell align="right">Away (Spread)</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
-          {picks.picks.map((pick) => (
+          {picksState.picks.map((pick) => (
             <TableRow
               key={pick.id}
               sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
             >
+              <TableCell>
+                { pick.id !== picksState.picks[0].id
+                    && (
+                    <IconButton onClick={() => adjustConfidence(pick.id, -1)}>
+                      <ArrowUpwardIcon />
+                    </IconButton>
+                    ) }
+                { pick.id !== picksState.picks[picksState.picks.length - 1].id
+                    && (
+                    <IconButton onClick={() => adjustConfidence(pick.id, 1)}>
+                      <ArrowDownwardIcon />
+                    </IconButton>
+                    )}
+              </TableCell>
               <TableCell component="th" scope="row">
                 {pick.id}
               </TableCell>
