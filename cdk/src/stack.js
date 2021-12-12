@@ -1,8 +1,11 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Stack = void 0;
+const apigateway = require("@aws-cdk/aws-apigateway");
 const cdk = require("@aws-cdk/core");
 const cognito = require("@aws-cdk/aws-cognito");
+const dynamodb = require("@aws-cdk/aws-dynamodb");
+const lambda = require("@aws-cdk/aws-lambda");
 const s3 = require("@aws-cdk/aws-s3");
 const route53 = require("@aws-cdk/aws-route53");
 const acm = require("@aws-cdk/aws-certificatemanager");
@@ -19,6 +22,16 @@ class Stack extends cdk.Stack {
                 region: 'us-east-1',
             },
         });
+        const tables = [
+            new dynamodb.Table(this, 'Picks', {
+                billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
+                partitionKey: { name: 'username', type: dynamodb.AttributeType.STRING },
+            }),
+            new dynamodb.Table(this, 'Game', {
+                billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
+                partitionKey: { name: 'id', type: dynamodb.AttributeType.STRING },
+            }),
+        ];
         const pool = new cognito.UserPool(this, 'UserPool', {
             mfa: cognito.Mfa.OPTIONAL,
             mfaSecondFactor: {
@@ -53,6 +66,26 @@ class Stack extends cdk.Stack {
                 userSrp: true,
             },
         });
+        const handler = new lambda.Function(this, 'BackendLambda', {
+            runtime: lambda.Runtime.NODEJS_14_X,
+            handler: 'index.handler',
+            code: lambda.AssetCode.fromAsset('../backend/build'),
+        });
+        tables.forEach((table) => table.grantReadWriteData(handler));
+        const api = new apigateway.LambdaRestApi(this, 'ApiGateway', {
+            handler,
+            proxy: true,
+            defaultCorsPreflightOptions: {
+                allowOrigins: apigateway.Cors.ALL_ORIGINS,
+                allowMethods: apigateway.Cors.ALL_METHODS,
+            },
+            defaultMethodOptions: {
+                authorizationType: apigateway.AuthorizationType.COGNITO,
+                authorizer: new apigateway.CognitoUserPoolsAuthorizer(this, 'ApiGatewayAuthorizer', {
+                    cognitoUserPools: [pool],
+                }),
+            },
+        });
         const zone = route53.HostedZone.fromLookup(this, 'Zone', {
             domainName: WEB_APP_DOMAIN,
         });
@@ -81,6 +114,20 @@ class Stack extends cdk.Stack {
                     behaviors: [{
                             isDefaultBehavior: true,
                         }],
+                }, {
+                    customOriginSource: {
+                        domainName: `${api.restApiId}.execute-api.${this.region}.${this.urlSuffix}`,
+                    },
+                    originPath: `/${api.deploymentStage.stageName}`,
+                    behaviors: [{
+                            defaultTtl: cdk.Duration.seconds(0),
+                            forwardedValues: {
+                                queryString: true,
+                                headers: ['Authorization'],
+                            },
+                            pathPattern: '/api/*',
+                            allowedMethods: cloudfront.CloudFrontAllowedMethods.ALL,
+                        }],
                 }],
         });
         // Create A Record Custom Domain to CloudFront CDN
@@ -91,7 +138,7 @@ class Stack extends cdk.Stack {
         });
         // Deploy site to s3
         new deploy.BucketDeployment(this, 'Deployment', {
-            sources: [deploy.Source.asset('./build')],
+            sources: [deploy.Source.asset('../frontend/build')],
             destinationBucket: siteBucket,
             distribution: siteDistribution,
             distributionPaths: ['/*'],

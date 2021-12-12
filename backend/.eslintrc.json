@@ -32,7 +32,10 @@
                 "ts": "never",
                 "tsx": "never"
             }
-        ]
+        ],
+        "max-classes-per-file": "off",
+        "no-restricted-syntax": "off",
+        "no-param-reassign": "off"
     },
     "settings": {
         "import/resolver": {

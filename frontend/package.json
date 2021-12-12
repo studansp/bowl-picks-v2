@@ -4,14 +4,6 @@
   "private": true,
   "dependencies": {
     "@aws-amplify/ui-react": "^2.1.4",
-    "@aws-cdk/aws-certificatemanager": "^1.135.0",
-    "@aws-cdk/aws-cloudfront": "^1.135.0",
-    "@aws-cdk/aws-cognito": "^1.135.0",
-    "@aws-cdk/aws-route53": "^1.135.0",
-    "@aws-cdk/aws-route53-targets": "^1.135.0",
-    "@aws-cdk/aws-s3": "^1.135.0",
-    "@aws-cdk/aws-s3-deployment": "^1.135.0",
-    "@aws-cdk/core": "^1.135.0",
     "@mui/material": "^5.2.3",
     "@testing-library/jest-dom": "^5.16.1",
     "@testing-library/react": "^11.2.7",
@@ -20,21 +12,19 @@
     "@types/react": "^17.0.37",
     "@types/react-dom": "^17.0.11",
     "aws-amplify": "^4.3.10",
-    "aws-cdk": "^2.1.0",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "react-scripts": "4.0.3",
     "web-vitals": "^1.1.2"
   },
   "scripts": {
+    "clean": "rm -rf build",
     "start": "react-scripts start",
     "build": "npm run lint && react-scripts build",
-    "lint": "eslint src/** cdk/**",
-    "fix": "eslint --fix src/** cdk/**",
+    "lint": "eslint src/**",
+    "fix": "eslint --fix src/**",
     "test": "react-scripts test",
-    "eject": "react-scripts eject",
-    "cdk-build": "tsc --target ES2018 --moduleResolution node --module commonjs cdk/index.ts",
-    "cdk-deploy": "npm run build && npm run cdk-build && cdk deploy"
+    "eject": "react-scripts eject"
   },
   "browserslist": {
     "production": [
