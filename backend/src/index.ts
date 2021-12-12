@@ -68,25 +68,42 @@ const getPicks = async (username: string): Promise<Picks> => {
   }
 };
 
-const setPicks = async (username: string, body: string): Promise<Picks> => {
+const setPicks = async (username: string, body: Picks): Promise<Picks> => {
   const picks = new Picks();
 
   picks.username = username;
 
-  // TODO Invalid input?
-  const parsed: Picks = JSON.parse(body);
-
   const allGames = await getGames();
 
-  picks.picks = allGames.map((game) => {
-    game.winner = parsed.picks.find((p) => p.id === game.id)?.winner;
-
-    return game;
-  });
-
-  for (const game of parsed.picks) {
-    picks.picks.push(game);
+  interface GameWithOrder {
+    order: number;
+    game: Game;
   }
+
+  // TODO Better invalid input?
+  const picksWithOrder: GameWithOrder[] = allGames.reduce((prev, game) => {
+    const foundIndex = body.picks.findIndex((p) => p.id === game.id);
+
+    if (foundIndex) {
+      const pickWinner = body.picks[foundIndex].winner;
+      const validWinners = [game.home, game.away];
+
+      if (pickWinner && validWinners.includes(pickWinner)) {
+        game.winner = pickWinner;
+      }
+    }
+
+    prev.push({
+      order: foundIndex ?? 1000,
+      game,
+    });
+
+    return prev;
+  }, [] as GameWithOrder[]);
+
+  picks.picks = picksWithOrder
+    .sort((a, b) => a.order - b.order)
+    .map((p) => p.game);
 
   return mapper.put(picks);
 };
@@ -109,7 +126,7 @@ export const handler = async (event: InputEvent): Promise<Response> => {
   }
 
   if (method === 'POST' && path === '/api/picks') {
-    result = await setPicks(username, event.body);
+    result = await setPicks(username, JSON.parse(event.body));
   }
 
   if (result === undefined || result == null) {

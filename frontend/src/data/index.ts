@@ -46,3 +46,9 @@ export const getGames = (): Promise<Game[]> => getBaseRequest()
 
 export const getPicks = (): Promise<Picks> => getBaseRequest()
   .then((request) => API.get(API_NAME, '/api/picks', request));
+
+export const setPicks = (picks: Picks): Promise<Picks> => getBaseRequest()
+  .then((request) => API.post(API_NAME, '/api/picks', {
+    ...request,
+    body: picks,
+  }));

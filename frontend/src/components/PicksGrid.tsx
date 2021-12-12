@@ -8,11 +8,12 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import { makeStyles } from '@mui/styles';
-import { Theme } from '@mui/material';
+import { Alert, Snackbar, Theme } from '@mui/material';
 import { useState } from 'react';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
-import { Picks } from '../data';
+import { debounce } from 'debounce';
+import { Picks, setPicks } from '../data';
 
 interface Props {
     picks: Picks
@@ -26,16 +27,45 @@ const useStyles = makeStyles<Theme>((theme) => ({
       backgroundColor: theme.palette.primary.light,
     },
   },
+  selected: {
+    backgroundColor: theme.palette.success.light,
+  },
 }));
 
+const DEBOUNCE_INTERVAL = 10_000;
+const setPicksDebounced = debounce(setPicks, DEBOUNCE_INTERVAL, true);
+
 export const PicksGrid: React.FunctionComponent<Props> = ({ picks }: Props) => {
+  const [saving, setSaving] = useState<boolean>(false);
+  const [saved, setSaved] = useState<boolean>(false);
+  const [error, setError] = useState<boolean>(false);
   const [picksState, setPicksState] = useState<Picks>(picks);
   const classes = useStyles();
 
+  const updatePicks = (newPicks: Picks): void => {
+    setPicksState(newPicks);
+    setSaved(false);
+    setSaving(true);
+    setPicksDebounced(newPicks).then(() => {
+      setSaving(false);
+      setSaved(true);
+    })
+      .catch(() => setError(true));
+  };
+
+  const clonePicks = (): Picks => JSON.parse(JSON.stringify(picksState));
+
+  const selectWinner = (id: string, winner: string): void => {
+    const clonedPicksState: Picks = clonePicks();
+
+    const game = clonedPicksState.picks.find((p) => p.id === id)!;
+    game.winner = winner;
+
+    updatePicks(clonedPicksState);
+  };
+
   const adjustConfidence = (id: string, modifer: number): void => {
-    // eslint-disable-next-line
-    debugger;
-    const clonedPicksState: Picks = JSON.parse(JSON.stringify(picksState));
+    const clonedPicksState: Picks = clonePicks();
 
     for (let i = 0; i < clonedPicksState.picks.length; i += 1) {
       if (clonedPicksState.picks[i].id === id) {
@@ -47,54 +77,89 @@ export const PicksGrid: React.FunctionComponent<Props> = ({ picks }: Props) => {
       }
     }
 
-    setPicksState(clonedPicksState);
+    updatePicks(clonedPicksState);
   };
 
   return (
-    <TableContainer component={Paper}>
-      <Table sx={{ minWidth: 650 }} aria-label="simple table">
-        <TableHead className={classes.header}>
-          <TableRow>
-            <TableCell>Adjust Confidence</TableCell>
-            <TableCell>Game</TableCell>
-            <TableCell align="right">Home</TableCell>
-            <TableCell align="right">Away (Spread)</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {picksState.picks.map((pick) => (
-            <TableRow
-              key={pick.id}
-              sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-            >
-              <TableCell>
-                { pick.id !== picksState.picks[0].id
+    <>
+      <Snackbar
+        open={saving}
+      >
+        <Alert severity="warning" sx={{ width: '100%' }}>
+          Saving...
+        </Alert>
+      </Snackbar>
+      <Snackbar
+        open={saved}
+        onClose={() => setSaved(false)}
+        autoHideDuration={3000}
+      >
+        <Alert severity="success" sx={{ width: '100%' }}>
+          Saved!
+        </Alert>
+      </Snackbar>
+      <Snackbar
+        open={error}
+      >
+        <Alert severity="error" sx={{ width: '100%' }}>
+          Save failed, contact the idiot in charge.
+        </Alert>
+      </Snackbar>
+      <TableContainer component={Paper}>
+        <Table sx={{ minWidth: 650 }} aria-label="simple table">
+          <TableHead className={classes.header}>
+            <TableRow>
+              <TableCell>Adjust Confidence</TableCell>
+              <TableCell>Game</TableCell>
+              <TableCell align="right">Home</TableCell>
+              <TableCell align="right">Away (Spread)</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {picksState.picks.map((pick) => (
+              <TableRow
+                key={pick.id}
+                sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+              >
+                <TableCell>
+                  { pick.id !== picksState.picks[0].id
                     && (
                     <IconButton onClick={() => adjustConfidence(pick.id, -1)}>
                       <ArrowUpwardIcon />
                     </IconButton>
                     ) }
-                { pick.id !== picksState.picks[picksState.picks.length - 1].id
+                  { pick.id !== picksState.picks[picksState.picks.length - 1].id
                     && (
                     <IconButton onClick={() => adjustConfidence(pick.id, 1)}>
                       <ArrowDownwardIcon />
                     </IconButton>
                     )}
-              </TableCell>
-              <TableCell component="th" scope="row">
-                {pick.id}
-              </TableCell>
-              <TableCell align="right">{pick.home}</TableCell>
-              <TableCell align="right">
-                {pick.away}
-                (
-                {pick.spread}
-                )
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </TableContainer>
+                </TableCell>
+                <TableCell component="th" scope="row">
+                  {pick.id}
+                </TableCell>
+                <TableCell
+                  align="right"
+                  onClick={() => selectWinner(pick.id, pick.home)}
+                  className={pick.winner === pick.home ? classes.selected : ''}
+                >
+                  {pick.home}
+                </TableCell>
+                <TableCell
+                  align="right"
+                  onClick={() => selectWinner(pick.id, pick.away)}
+                  className={pick.winner === pick.away ? classes.selected : ''}
+                >
+                  {pick.away}
+                  (
+                  {pick.spread}
+                  )
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+    </>
   );
 };
