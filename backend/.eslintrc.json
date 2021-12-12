@@ -35,7 +35,9 @@
         ],
         "max-classes-per-file": "off",
         "no-restricted-syntax": "off",
-        "no-param-reassign": "off"
+        "no-param-reassign": "off",
+        "no-console": "off",
+        "@typescript-eslint/no-explicit-any": "off"
     },
     "settings": {
         "import/resolver": {

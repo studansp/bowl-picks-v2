@@ -36,7 +36,7 @@ export const GAMES = [
     id: 'Tropical Smoothie Café Frisco Bowl', home: 'UTSA', away: 'San Diego St.', spread: '+2.5',
   },
   {
-    id: 'Lockheed Martin Armed Forces Bowl', home: 'Missouri', away: 'Army-3.5', spread: '',
+    id: 'Lockheed Martin Armed Forces Bowl', home: 'Missouri', away: 'Army', spread: '-3.5',
   },
   {
     id: 'Frisco Football Classic', home: 'Miami(OH)', away: 'North Texas', spread: '+3.5',

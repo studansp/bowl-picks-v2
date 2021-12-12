@@ -48,7 +48,7 @@ const getGames = async (): Promise<Game[]> => {
   return result;
 };
 
-const getPicks = async (username: string): Promise<Picks | null> => {
+const getPicks = async (username: string): Promise<Picks> => {
   const picks = new Picks();
 
   picks.username = username;
@@ -56,17 +56,22 @@ const getPicks = async (username: string): Promise<Picks | null> => {
   try {
     return await mapper.get(picks);
   } catch (e) {
-    // TODO Verify not found
-  }
+    const { name } = e as any;
 
-  return null;
+    if (name !== 'ItemNotFoundException') {
+      throw e;
+    }
+
+    picks.picks = await getGames();
+
+    return picks;
+  }
 };
 
 const setPicks = async (username: string, body: string): Promise<Picks> => {
   const picks = new Picks();
 
   picks.username = username;
-  picks.year = 2021;
 
   // TODO Invalid input?
   const parsed: Picks = JSON.parse(body);
