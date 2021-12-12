@@ -2,7 +2,7 @@
   "name": "bowl-picks-v2",
   "version": "0.1.0",
   "private": true,
-  "dependencies": {    
+  "dependencies": {
     "@aws-cdk/aws-apigateway": "^1.135.0",
     "@aws-cdk/aws-certificatemanager": "^1.135.0",
     "@aws-cdk/aws-cloudfront": "^1.135.0",
@@ -17,6 +17,7 @@
     "@aws-cdk/core": "^1.135.0",
     "@aws/dynamodb-data-mapper": "^0.7.3",
     "@aws/dynamodb-data-mapper-annotations": "^0.7.3",
+    "@cloudcomponents/cdk-dynamodb-seeder": "^1.48.0",
     "@types/jest": "^26.0.24",
     "aws-amplify": "^4.3.10"
   },

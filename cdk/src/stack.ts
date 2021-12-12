@@ -10,6 +10,8 @@ import * as cloudfront from '@aws-cdk/aws-cloudfront';
 import * as targets from '@aws-cdk/aws-route53-targets';
 import * as deploy from '@aws-cdk/aws-s3-deployment';
 import { ViewerCertificate, ViewerProtocolPolicy } from '@aws-cdk/aws-cloudfront';
+import { DynamoDBSeeder, Seeds } from '@cloudcomponents/cdk-dynamodb-seeder';
+import { GAMES } from './games-seed';
 
 const WEB_APP_DOMAIN = 'bowl-picks.com';
 
@@ -22,16 +24,23 @@ export class Stack extends cdk.Stack {
       },
     });
 
+    const gameTable = new dynamodb.Table(this, 'Game', {
+      billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
+      partitionKey: { name: 'id', type: dynamodb.AttributeType.STRING },
+    });
+
     const tables = [
       new dynamodb.Table(this, 'Picks', {
         billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
         partitionKey: { name: 'username', type: dynamodb.AttributeType.STRING },
       }),
-      new dynamodb.Table(this, 'Game', {
-        billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
-        partitionKey: { name: 'id', type: dynamodb.AttributeType.STRING },
-      }),
+      gameTable,
     ];
+
+    new DynamoDBSeeder(this, 'GameSeeder', {
+      table: gameTable,
+      seeds: Seeds.fromInline(GAMES),
+    });
 
     const pool = new cognito.UserPool(this, 'UserPool', {
       mfa: cognito.Mfa.OPTIONAL,

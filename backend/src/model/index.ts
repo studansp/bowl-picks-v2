@@ -10,9 +10,6 @@ export class Game {
     id: string;
 
     @attribute()
-    year: number;
-
-    @attribute()
     home: string;
 
     @attribute()
@@ -29,9 +26,6 @@ export class Game {
 export class Picks {
     @hashKey()
     username: string;
-
-    @attribute()
-    year: number;
 
     @attribute()
     picks: Game[];
