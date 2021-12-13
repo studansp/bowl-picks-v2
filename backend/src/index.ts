@@ -84,7 +84,7 @@ const setPicks = async (username: string, body: Picks): Promise<Picks> => {
   const picksWithOrder: GameWithOrder[] = allGames.reduce((prev, game) => {
     const foundIndex = body.picks.findIndex((p) => p.id === game.id);
 
-    if (foundIndex) {
+    if (foundIndex !== -1) {
       const pickWinner = body.picks[foundIndex].winner;
       const validWinners = [game.home, game.away];
 

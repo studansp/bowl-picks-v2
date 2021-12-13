@@ -9,21 +9,27 @@ import MenuIcon from '@mui/icons-material/Menu';
 import Container from '@mui/material/Container';
 import Button from '@mui/material/Button';
 import MenuItem from '@mui/material/MenuItem';
+import { Auth } from 'aws-amplify';
 
 import {
   Link,
 } from 'react-router-dom';
 
-const pages = [{
-  name: 'Picks',
-  route: '/picks',
-}, {
-  name: 'Leaderboard',
-  route: '/leaderboard',
-},
-];
+interface Props {
+  isAuthenticated: boolean;
+  setAuthenticated: (value: boolean) => void;
+}
 
-const NavBar = () => {
+const NavBar: React.FunctionComponent<Props> = ({ isAuthenticated, setAuthenticated }: Props) => {
+  const pages = isAuthenticated ? [{
+    name: 'Picks',
+    route: '/picks',
+  }, {
+    name: 'Leaderboard',
+    route: '/leaderboard',
+  },
+  ] : [];
+
   const [anchorElNav, setAnchorElNav] = React.useState<HTMLElement | null>(null);
 
   const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) => {
@@ -101,13 +107,19 @@ const NavBar = () => {
             ))}
           </Box>
           <Box sx={{ flexGrow: 0 }}>
+            { isAuthenticated
+            && (
             <Button
               key="Logout"
-              onClick={handleCloseNavMenu}
+              onClick={() => {
+                Auth.signOut();
+                setAuthenticated(false);
+              }}
               sx={{ my: 2, color: 'white', display: 'block' }}
             >
               Logout
             </Button>
+            )}
           </Box>
         </Toolbar>
       </Container>

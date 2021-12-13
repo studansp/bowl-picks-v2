@@ -34,6 +34,15 @@ interface BaseRequest {
     headers: Record<string, string>
 }
 
+export const isAuthenticatedFetch = async (): Promise<boolean> => {
+  try {
+    await Auth.currentAuthenticatedUser();
+    return true;
+  } catch {
+    return false;
+  }
+};
+
 const getBaseRequest = async (): Promise<BaseRequest> => Auth.currentAuthenticatedUser()
   .then((user) => ({
     headers: {

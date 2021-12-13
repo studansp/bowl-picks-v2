@@ -12,7 +12,7 @@ import { Alert, Snackbar, Theme } from '@mui/material';
 import { useState } from 'react';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
-import { debounce } from 'debounce';
+import { useDebouncedCallback } from 'use-debounce';
 import { Picks, setPicks } from '../data';
 
 interface Props {
@@ -32,9 +32,6 @@ const useStyles = makeStyles<Theme>((theme) => ({
   },
 }));
 
-const DEBOUNCE_INTERVAL = 10_000;
-const setPicksDebounced = debounce(setPicks, DEBOUNCE_INTERVAL, true);
-
 export const PicksGrid: React.FunctionComponent<Props> = ({ picks }: Props) => {
   const [saving, setSaving] = useState<boolean>(false);
   const [saved, setSaved] = useState<boolean>(false);
@@ -42,15 +39,24 @@ export const PicksGrid: React.FunctionComponent<Props> = ({ picks }: Props) => {
   const [picksState, setPicksState] = useState<Picks>(picks);
   const classes = useStyles();
 
+  const updatePicksDebounced = useDebouncedCallback(
+    // function
+    () => {
+      setPicks(picksState).then(() => {
+        setSaving(false);
+        setSaved(true);
+      })
+        .catch(() => setError(true));
+    },
+    // delay in ms
+    5_000,
+  );
+
   const updatePicks = (newPicks: Picks): void => {
     setPicksState(newPicks);
     setSaved(false);
     setSaving(true);
-    setPicksDebounced(newPicks).then(() => {
-      setSaving(false);
-      setSaved(true);
-    })
-      .catch(() => setError(true));
+    updatePicksDebounced();
   };
 
   const clonePicks = (): Picks => JSON.parse(JSON.stringify(picksState));
@@ -85,8 +91,8 @@ export const PicksGrid: React.FunctionComponent<Props> = ({ picks }: Props) => {
       <Snackbar
         open={saving}
       >
-        <Alert severity="warning" sx={{ width: '100%' }}>
-          Saving...
+        <Alert severity="info" sx={{ width: '100%' }}>
+          Waiting for more changes before saving.
         </Alert>
       </Snackbar>
       <Snackbar
