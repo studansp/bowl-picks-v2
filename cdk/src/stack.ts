@@ -43,6 +43,16 @@ export class Stack extends cdk.Stack {
     });
 
     const pool = new cognito.UserPool(this, 'UserPool', {
+      standardAttributes: {
+        email: {
+          required: true,
+          mutable: false,
+        },
+        phoneNumber: {
+          required: false,
+          mutable: false,
+        },
+      },
       mfa: cognito.Mfa.OPTIONAL,
       mfaSecondFactor: {
         sms: true,
@@ -63,11 +73,8 @@ export class Stack extends cdk.Stack {
         emailBody: 'Hello {username}, you have been invited to join bowl picks! Your temporary password is {####}',
         smsMessage: 'Hello {username}, your temporary password for bowl picks is {####}',
       },
-      userVerification: {
-        emailSubject: 'Verify your email to sign up for bowl picks!',
-        emailBody: 'Thanks for signing up! Your verification code is {####}',
-        emailStyle: cognito.VerificationEmailStyle.CODE,
-        smsMessage: 'Thanks for signing up! Your verification code is {####}',
+      autoVerify: {
+        email: true, phone: true,
       },
     });
 
