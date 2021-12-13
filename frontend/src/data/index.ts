@@ -17,14 +17,14 @@ const API_NAME = 'Backend';
 
 Amplify.configure({
   aws_cognito_region: 'us-east-1',
-  aws_user_pools_id: 'us-east-1_t9E1VJ4mA',
-  aws_user_pools_web_client_id: '1gs5daov64bncnpnaffb830mv0',
+  aws_user_pools_id: 'us-east-1_EZBKICR23',
+  aws_user_pools_web_client_id: '19t65ms6j6cf7t0k9df8viojvd',
   aws_mandatory_sign_in: 'enable',
   API: {
     endpoints: [
       {
         name: API_NAME,
-        endpoint: 'https://d27r3zos7l7xqs.cloudfront.net',
+        endpoint: 'https://bowl-picks.com',
       },
     ],
   },

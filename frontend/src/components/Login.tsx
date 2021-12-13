@@ -38,17 +38,22 @@ export const Login: React.FC<Props> = ({ authenticated, setAuthenticated }: Prop
 
   const register = async () => {
     try {
-      setLoading(true);
+      if (!email) {
+        setError('Email address is required');
+      } else {
+        setLoading(true);
 
-      await Auth.signUp({
-        username,
-        password,
-        attributes: {
-          email,
-        },
-      });
+        await Auth.signUp({
+          username,
+          password,
+          attributes: {
+            email,
+          },
+        });
 
-      setAuthState('confirm');
+        setError('');
+        setAuthState('confirm');
+      }
     } catch (e) {
       const errorAsAny: any = e;
       setError(errorAsAny.message);

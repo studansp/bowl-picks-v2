@@ -1,5 +1,7 @@
 import * as React from 'react';
-import { CircularProgress, Grid } from '@mui/material';
+import {
+  CircularProgress, Grid, List, ListItem, Typography,
+} from '@mui/material';
 import { useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { getPicks, Picks } from '../data';
@@ -31,8 +33,22 @@ export const PicksPage: React.FunctionComponent<Props> = ({ isAuthenticated }: P
   }
 
   return (
-    <Grid item xs={12}>
-      <PicksGrid picks={picks} />
-    </Grid>
+    <>
+      <Grid item xs={12}>
+        <Typography variant="h5">Instructions</Typography>
+        <List>
+          <ListItem>
+            Click the name of the team your think will win.
+          </ListItem>
+          <ListItem>
+            Use the arrows to adjust confidence. The higher the game is, the more points you will
+            get for a correct prediction.
+          </ListItem>
+        </List>
+      </Grid>
+      <Grid item xs={12}>
+        <PicksGrid picks={picks} />
+      </Grid>
+    </>
   );
 };

@@ -9,11 +9,12 @@ import * as acm from '@aws-cdk/aws-certificatemanager';
 import * as cloudfront from '@aws-cdk/aws-cloudfront';
 import * as targets from '@aws-cdk/aws-route53-targets';
 import * as deploy from '@aws-cdk/aws-s3-deployment';
-import { ViewerCertificate, ViewerProtocolPolicy } from '@aws-cdk/aws-cloudfront';
+import { ViewerProtocolPolicy } from '@aws-cdk/aws-cloudfront';
 import { DynamoDBSeeder, Seeds } from '@cloudcomponents/cdk-dynamodb-seeder';
 import { GAMES } from './games-seed';
 
 const WEB_APP_DOMAIN = 'bowl-picks.com';
+const WEB_APP_DOMAIN_WWW = `www.${WEB_APP_DOMAIN}`;
 
 export class Stack extends cdk.Stack {
   constructor(scope: cdk.Construct, id: string) {
@@ -116,6 +117,7 @@ export class Stack extends cdk.Stack {
     const siteBucket = new s3.Bucket(this, 'SiteBucket', {
       bucketName: WEB_APP_DOMAIN,
       websiteIndexDocument: 'index.html',
+      websiteErrorDocument: 'index.html',
       publicReadAccess: true,
       removalPolicy: cdk.RemovalPolicy.DESTROY,
     });
@@ -125,11 +127,15 @@ export class Stack extends cdk.Stack {
       domainName: WEB_APP_DOMAIN,
       hostedZone: zone,
       region: 'us-east-1', // standard for acm certs
+      subjectAlternativeNames: [WEB_APP_DOMAIN_WWW]
     });
 
     // Create CloudFront Distribution
     const siteDistribution = new cloudfront.CloudFrontWebDistribution(this, 'SiteDistribution', {
-      viewerCertificate: ViewerCertificate.fromAcmCertificate(siteCertificate),
+      aliasConfiguration: {
+        acmCertRef: siteCertificate.certificateArn,
+        names: [WEB_APP_DOMAIN, WEB_APP_DOMAIN_WWW],
+      },
       viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
       originConfigs: [{
         customOriginSource: {
@@ -159,6 +165,11 @@ export class Stack extends cdk.Stack {
     // Create A Record Custom Domain to CloudFront CDN
     new route53.ARecord(this, 'SiteRecord', {
       recordName: WEB_APP_DOMAIN,
+      target: route53.RecordTarget.fromAlias(new targets.CloudFrontTarget(siteDistribution)),
+      zone,
+    });
+    new route53.ARecord(this, 'SiteRecordWWW', {
+      recordName: WEB_APP_DOMAIN_WWW,
       target: route53.RecordTarget.fromAlias(new targets.CloudFrontTarget(siteDistribution)),
       zone,
     });
