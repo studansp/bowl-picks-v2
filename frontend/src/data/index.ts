@@ -15,6 +15,8 @@ export interface Picks {
 
 const API_NAME = 'Backend';
 
+const endpoint = location.hostname === 'localhost' ? 'https://bowl-picks.com' : `https://${location.host}`;
+
 Amplify.configure({
   aws_cognito_region: 'us-east-1',
   aws_user_pools_id: 'us-east-1_EZBKICR23',
@@ -24,7 +26,7 @@ Amplify.configure({
     endpoints: [
       {
         name: API_NAME,
-        endpoint: 'https://bowl-picks.com',
+        endpoint,
       },
     ],
   },

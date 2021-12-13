@@ -36,7 +36,8 @@
         ],
         "max-classes-per-file": "off",
         "no-restricted-syntax": "off",
-        "no-param-reassign": "off"
+        "no-param-reassign": "off",
+        "no-restricted-globals": "off"
     },
     "settings": {
         "import/resolver": {

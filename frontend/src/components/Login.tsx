@@ -1,6 +1,6 @@
 import * as React from 'react';
 import {
-  Alert, CircularProgress, Grid, TextField, ToggleButton, ToggleButtonGroup,
+  Alert, CircularProgress, Grid, TextField, ToggleButton, ToggleButtonGroup, Typography,
 } from '@mui/material';
 import { useState } from 'react';
 import Button from '@mui/material/Button';
@@ -98,6 +98,22 @@ export const Login: React.FC<Props> = ({ authenticated, setAuthenticated }: Prop
           <ToggleButton value="confirm">Confirm</ToggleButton>
         </ToggleButtonGroup>
       </Grid>
+      {
+        authState === 'confirm'
+
+      && (
+      <Grid item xs={12}>
+        <Typography>
+          An email has been sent to
+          {' '}
+          {email}
+          {' '}
+          with a confirmation code. Copy the confirmation code
+          below to finish account creation.
+        </Typography>
+      </Grid>
+      )
+      }
       <Grid item xs={12}>
         <TextField
           required
