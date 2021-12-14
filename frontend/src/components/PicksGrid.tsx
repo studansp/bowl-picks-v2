@@ -41,6 +41,9 @@ const useStyles = makeStyles<Theme>((theme) => ({
   selected: {
     backgroundColor: theme.palette.success.light,
   },
+  actionsColumns: {
+    width: '120px',
+  },
 }));
 
 export const PicksGrid: React.FunctionComponent<Props> = ({ picks }: Props) => {
@@ -148,7 +151,7 @@ export const PicksGrid: React.FunctionComponent<Props> = ({ picks }: Props) => {
         <Table sx={{ minWidth: 650 }} aria-label="simple table">
           <TableHead className={classes.header}>
             <TableRow>
-              <TableCell>Adjust Confidence</TableCell>
+              <TableCell className={classes.actionsColumns}>Adjust Confidence</TableCell>
               { shouldShowGame && <TableCell>Game</TableCell> }
               <TableCell align="right">Home</TableCell>
               <TableCell align="right">Away (Spread)</TableCell>
@@ -177,7 +180,7 @@ export const PicksGrid: React.FunctionComponent<Props> = ({ picks }: Props) => {
                           key={pick.id}
                           sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                         >
-                          <TableCell align="right">
+                          <TableCell align="right" className={classes.actionsColumns}>
                             { pick.id !== picksState.picks[0].id
                         && (
                         <IconButton onClick={() => adjustConfidence(pick.id, -1)}>
