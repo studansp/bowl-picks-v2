@@ -13,6 +13,8 @@ import { useState } from 'react';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import { useDebouncedCallback } from 'use-debounce';
+import { useTheme } from '@mui/material/styles';
+import useMediaQuery from '@mui/material/useMediaQuery';
 import { Picks, setPicks } from '../data';
 
 interface Props {
@@ -86,6 +88,9 @@ export const PicksGrid: React.FunctionComponent<Props> = ({ picks }: Props) => {
     updatePicks(clonedPicksState);
   };
 
+  const theme = useTheme();
+  const shouldShowGame = useMediaQuery(theme.breakpoints.up('md'));
+
   return (
     <>
       <Snackbar
@@ -116,7 +121,7 @@ export const PicksGrid: React.FunctionComponent<Props> = ({ picks }: Props) => {
           <TableHead className={classes.header}>
             <TableRow>
               <TableCell>Adjust Confidence</TableCell>
-              <TableCell>Game</TableCell>
+              { shouldShowGame && <TableCell>Game</TableCell> }
               <TableCell align="right">Home</TableCell>
               <TableCell align="right">Away (Spread)</TableCell>
             </TableRow>
@@ -141,9 +146,12 @@ export const PicksGrid: React.FunctionComponent<Props> = ({ picks }: Props) => {
                     </IconButton>
                     )}
                 </TableCell>
+                { shouldShowGame
+                && (
                 <TableCell component="th" scope="row">
                   {pick.id}
                 </TableCell>
+                )}
                 <TableCell
                   align="right"
                   onClick={() => selectWinner(pick.id, pick.home)}
