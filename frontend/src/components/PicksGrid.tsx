@@ -33,7 +33,6 @@ interface Props {
     picks: Picks
 }
 
-// Check this https://codesandbox.io/s/react-material-ui-and-react-beautiful-dnd-uofv4?file=/src/MaterialTable.tsx
 const useStyles = makeStyles<Theme>((theme) => ({
   header: {
     '& .MuiTableCell-head': {

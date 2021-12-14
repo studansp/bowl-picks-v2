@@ -68,6 +68,64 @@ const getPicks = async (username: string): Promise<Picks> => {
   }
 };
 
+interface Leader {
+  username: string;
+  points: number;
+  possible: number;
+}
+
+const getLeaders = async (): Promise<Leader[]> => {
+  const result: Leader[] = [];
+  const games = await getGames();
+
+  const gamesMap = games.reduce((prev, current) => {
+    prev[current.id] = current;
+
+    return prev;
+  }, {} as Record<string, Game>);
+
+  const iterator = mapper.scan(Picks);
+
+  for await (const picks of iterator) {
+    let totalPoints = 0; let
+      possiblePoints = 0;
+    let currentPoints = games.length;
+
+    for (const pick of picks.picks) {
+      const game = gamesMap[pick.id];
+
+      if (game.winner) {
+        if (pick.winner === game.winner) {
+          totalPoints += currentPoints;
+        }
+      } else {
+        possiblePoints += currentPoints;
+      }
+
+      currentPoints -= 1;
+    }
+
+    result.push({
+      username: picks.username,
+      points: totalPoints,
+      possible: possiblePoints + totalPoints,
+    });
+  }
+
+  result.sort((a, b) => {
+    if (a.points !== b.points) {
+      return a.points - b.points;
+    }
+    if (a.possible !== b.possible) {
+      return a.possible - a.possible;
+    }
+
+    return a.username.localeCompare(b.username);
+  });
+
+  return result;
+};
+
 const setPicks = async (username: string, body: Picks): Promise<Picks> => {
   const picks = new Picks();
 
@@ -123,6 +181,10 @@ export const handler = async (event: InputEvent): Promise<Response> => {
 
   if (method === 'GET' && path === '/api/picks') {
     result = await getPicks(username);
+  }
+
+  if (method === 'GET' && path === '/api/leaders') {
+    result = await getLeaders();
   }
 
   if (method === 'POST' && path === '/api/picks') {

@@ -8,6 +8,12 @@ export interface Game {
     winner?: string;
 }
 
+export interface Leader {
+  username: string;
+  points: number;
+  possible: number;
+}
+
 export interface Picks {
     username: string;
     picks: Game[];
@@ -54,6 +60,9 @@ const getBaseRequest = async (): Promise<BaseRequest> => Auth.currentAuthenticat
 
 export const getGames = (): Promise<Game[]> => getBaseRequest()
   .then((request) => API.get(API_NAME, '/api/games', request));
+
+export const getLeaders = (): Promise<Leader[]> => getBaseRequest()
+  .then((request) => API.get(API_NAME, '/api/leaders', request));
 
 export const getPicks = (): Promise<Picks> => getBaseRequest()
   .then((request) => API.get(API_NAME, '/api/picks', request));
