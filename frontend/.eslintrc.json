@@ -37,7 +37,8 @@
         "max-classes-per-file": "off",
         "no-restricted-syntax": "off",
         "no-param-reassign": "off",
-        "no-restricted-globals": "off"
+        "no-restricted-globals": "off",
+        "react/jsx-props-no-spreading": "off"
     },
     "settings": {
         "import/resolver": {

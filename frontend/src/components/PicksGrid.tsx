@@ -12,9 +12,18 @@ import { Alert, Snackbar, Theme } from '@mui/material';
 import { useState } from 'react';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
+import DragHandleIcon from '@mui/icons-material/DragHandle';
 import { useDebouncedCallback } from 'use-debounce';
 import { useTheme } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
+import {
+  DragDropContext,
+  Draggable,
+  DraggableProvided,
+  Droppable,
+  DroppableProvided,
+  DropResult,
+} from 'react-beautiful-dnd';
 import { Picks, setPicks } from '../data';
 
 interface Props {
@@ -88,6 +97,25 @@ export const PicksGrid: React.FunctionComponent<Props> = ({ picks }: Props) => {
     updatePicks(clonedPicksState);
   };
 
+  const handleDragEnd = (result: DropResult) => {
+    if (!result.destination) {
+      return;
+    }
+
+    if (result.destination.index === result.source.index) {
+      return;
+    }
+
+    const clonedPicksState: Picks = clonePicks();
+
+    const temp = clonedPicksState.picks[result.destination.index];
+
+    clonedPicksState.picks[result.destination.index] = clonedPicksState.picks[result.source.index];
+    clonedPicksState.picks[result.source.index] = temp;
+
+    updatePicks(clonedPicksState);
+  };
+
   const theme = useTheme();
   const shouldShowGame = useMediaQuery(theme.breakpoints.up('md'));
 
@@ -126,52 +154,79 @@ export const PicksGrid: React.FunctionComponent<Props> = ({ picks }: Props) => {
               <TableCell align="right">Away (Spread)</TableCell>
             </TableRow>
           </TableHead>
-          <TableBody>
-            {picksState.picks.map((pick) => (
-              <TableRow
-                key={pick.id}
-                sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-              >
-                <TableCell>
-                  { pick.id !== picksState.picks[0].id
+          <DragDropContext onDragEnd={handleDragEnd}>
+            <Droppable droppableId="droppable" direction="vertical">
+              {(droppableProvided: DroppableProvided) => (
+                <TableBody
+                  ref={droppableProvided.innerRef}
+                  {...droppableProvided.droppableProps}
+                >
+                  {picksState.picks.map((pick, index) => (
+
+                    <Draggable
+                      key={pick.id}
+                      draggableId={pick.id}
+                      index={index}
+                    >
+                      {(
+                        draggableProvided: DraggableProvided,
+                      ) => (
+                        <TableRow
+                          ref={draggableProvided.innerRef}
+                          {...draggableProvided.draggableProps}
+                          key={pick.id}
+                          sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                        >
+                          <TableCell align="right">
+                            { pick.id !== picksState.picks[0].id
+                        && (
+                        <IconButton onClick={() => adjustConfidence(pick.id, -1)}>
+                          <ArrowUpwardIcon />
+                        </IconButton>
+                        ) }
+                            { pick.id !== picksState.picks[picksState.picks.length - 1].id
+                        && (
+                        <IconButton onClick={() => adjustConfidence(pick.id, 1)}>
+                          <ArrowDownwardIcon />
+                        </IconButton>
+                        )}
+                            <span {...draggableProvided.dragHandleProps}>
+                              <DragHandleIcon />
+                            </span>
+                          </TableCell>
+                          { shouldShowGame
                     && (
-                    <IconButton onClick={() => adjustConfidence(pick.id, -1)}>
-                      <ArrowUpwardIcon />
-                    </IconButton>
-                    ) }
-                  { pick.id !== picksState.picks[picksState.picks.length - 1].id
-                    && (
-                    <IconButton onClick={() => adjustConfidence(pick.id, 1)}>
-                      <ArrowDownwardIcon />
-                    </IconButton>
+                    <TableCell component="th" scope="row">
+                      {pick.id}
+                    </TableCell>
                     )}
-                </TableCell>
-                { shouldShowGame
-                && (
-                <TableCell component="th" scope="row">
-                  {pick.id}
-                </TableCell>
-                )}
-                <TableCell
-                  align="right"
-                  onClick={() => selectWinner(pick.id, pick.home)}
-                  className={pick.winner === pick.home ? classes.selected : ''}
-                >
-                  {pick.home}
-                </TableCell>
-                <TableCell
-                  align="right"
-                  onClick={() => selectWinner(pick.id, pick.away)}
-                  className={pick.winner === pick.away ? classes.selected : ''}
-                >
-                  {pick.away}
-                  (
-                  {pick.spread}
-                  )
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
+                          <TableCell
+                            align="right"
+                            onClick={() => selectWinner(pick.id, pick.home)}
+                            className={pick.winner === pick.home ? classes.selected : ''}
+                          >
+                            {pick.home}
+                          </TableCell>
+                          <TableCell
+                            align="right"
+                            onClick={() => selectWinner(pick.id, pick.away)}
+                            className={pick.winner === pick.away ? classes.selected : ''}
+                          >
+                            {pick.away}
+                            (
+                            {pick.spread}
+                            )
+                          </TableCell>
+                        </TableRow>
+                      )}
+
+                    </Draggable>
+                  ))}
+                </TableBody>
+              )}
+            </Droppable>
+
+          </DragDropContext>
         </Table>
       </TableContainer>
     </>
