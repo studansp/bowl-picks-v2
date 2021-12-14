@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 
-import {
-  CircularProgress, createTheme, Grid, ThemeProvider,
-} from '@mui/material';
+import CircularProgress from '@mui/material/CircularProgress';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
+import Grid from '@mui/material/Grid';
+
 import {
   BrowserRouter,
   Route,

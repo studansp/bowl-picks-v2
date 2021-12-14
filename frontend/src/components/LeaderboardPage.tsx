@@ -1,5 +1,8 @@
 import * as React from 'react';
-import { Grid, Typography } from '@mui/material';
+
+import Grid from '@mui/material/Grid';
+import Typography from '@mui/material/Typography';
+
 import { Navigate } from 'react-router-dom';
 import CelebrationIcon from '@mui/icons-material/Celebration';
 

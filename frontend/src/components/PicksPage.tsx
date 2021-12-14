@@ -1,7 +1,11 @@
 import * as React from 'react';
-import {
-  CircularProgress, Grid, List, ListItem, Typography,
-} from '@mui/material';
+
+import CircularProgress from '@mui/material/CircularProgress';
+import Grid from '@mui/material/Grid';
+import List from '@mui/material/List';
+import ListItem from '@mui/material/ListItem';
+import Typography from '@mui/material/Typography';
+
 import { useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { getPicks, Picks } from '../data';

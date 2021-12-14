@@ -1,7 +1,12 @@
 import * as React from 'react';
-import {
-  Alert, CircularProgress, Grid, TextField, ToggleButton, ToggleButtonGroup, Typography,
-} from '@mui/material';
+
+import CircularProgress from '@mui/material/CircularProgress';
+import Grid from '@mui/material/Grid';
+import Alert from '@mui/material/Alert';
+import TextField from '@mui/material/TextField';
+import ToggleButton from '@mui/material/ToggleButton';
+import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
+import Typography from '@mui/material/Typography';
 import { useState } from 'react';
 import Button from '@mui/material/Button';
 import { Navigate } from 'react-router-dom';
