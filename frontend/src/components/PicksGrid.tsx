@@ -48,6 +48,14 @@ const useStyles = makeStyles<Theme>((theme) => ({
   },
 }));
 
+const formatSpread = (spread: number): string => {
+  if (spread > 0) {
+    return `+${spread}`;
+  }
+
+  return spread.toString();
+};
+
 export const PicksGrid: React.FunctionComponent<Props> = ({ picks }: Props) => {
   const [saving, setSaving] = useState<boolean>(false);
   const [saved, setSaved] = useState<boolean>(false);
@@ -113,10 +121,9 @@ export const PicksGrid: React.FunctionComponent<Props> = ({ picks }: Props) => {
 
     const clonedPicksState: Picks = clonePicks();
 
-    const temp = clonedPicksState.picks[result.destination.index];
-
-    clonedPicksState.picks[result.destination.index] = clonedPicksState.picks[result.source.index];
-    clonedPicksState.picks[result.source.index] = temp;
+    const element = clonedPicksState.picks[result.source.index];
+    clonedPicksState.picks.splice(result.source.index, 1);
+    clonedPicksState.picks.splice(result.destination.index, 0, element);
 
     updatePicks(clonedPicksState);
   };
@@ -153,9 +160,9 @@ export const PicksGrid: React.FunctionComponent<Props> = ({ picks }: Props) => {
         <Table sx={{ minWidth: 650 }} aria-label="simple table">
           <TableHead className={classes.header}>
             <TableRow>
-              <TableCell className={classes.actionsColumns}>Adjust Confidence</TableCell>
               { shouldShowGame && <TableCell>Game</TableCell> }
-              <TableCell align="right">Home</TableCell>
+              <TableCell align="right">Home (Spread)</TableCell>
+              <TableCell className={classes.actionsColumns}>Adjust Confidence</TableCell>
               <TableCell align="right">Away (Spread)</TableCell>
             </TableRow>
           </TableHead>
@@ -182,23 +189,6 @@ export const PicksGrid: React.FunctionComponent<Props> = ({ picks }: Props) => {
                           key={pick.id}
                           sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                         >
-                          <TableCell align="right" className={classes.actionsColumns}>
-                            { pick.id !== picksState.picks[0].id
-                        && (
-                        <IconButton onClick={() => adjustConfidence(pick.id, -1)}>
-                          <ArrowUpwardIcon />
-                        </IconButton>
-                        ) }
-                            { pick.id !== picksState.picks[picksState.picks.length - 1].id
-                        && (
-                        <IconButton onClick={() => adjustConfidence(pick.id, 1)}>
-                          <ArrowDownwardIcon />
-                        </IconButton>
-                        )}
-                            <span {...draggableProvided.dragHandleProps}>
-                              <DragHandleIcon />
-                            </span>
-                          </TableCell>
                           { shouldShowGame
                     && (
                     <TableCell component="th" scope="row">
@@ -211,6 +201,26 @@ export const PicksGrid: React.FunctionComponent<Props> = ({ picks }: Props) => {
                             className={pick.winner === pick.home ? classes.selected : ''}
                           >
                             {pick.home}
+                            (
+                            {formatSpread(0 - parseFloat(pick.spread))}
+                            )
+                          </TableCell>
+                          <TableCell align="right" className={classes.actionsColumns}>
+                            { pick.id !== picksState.picks[0].id
+                        && (
+                        <IconButton onClick={() => adjustConfidence(pick.id, -1)}>
+                          <ArrowUpwardIcon />
+                        </IconButton>
+                        ) }
+                            <span {...draggableProvided.dragHandleProps}>
+                              <DragHandleIcon />
+                            </span>
+                            { pick.id !== picksState.picks[picksState.picks.length - 1].id
+                        && (
+                        <IconButton onClick={() => adjustConfidence(pick.id, 1)}>
+                          <ArrowDownwardIcon />
+                        </IconButton>
+                        )}
                           </TableCell>
                           <TableCell
                             align="right"
