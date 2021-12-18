@@ -38,7 +38,9 @@
         "no-restricted-syntax": "off",
         "no-param-reassign": "off",
         "no-restricted-globals": "off",
-        "react/jsx-props-no-spreading": "off"
+        "react/jsx-props-no-spreading": "off",
+        "max-len": ["error", { "code": 120 }],
+        "react/require-default-props": "off"
     },
     "settings": {
         "import/resolver": {

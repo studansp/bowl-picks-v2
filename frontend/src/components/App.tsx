@@ -41,7 +41,15 @@ const App: React.FunctionComponent = () => {
           <Routes>
             <Route path="/" element={<PicksPage isAuthenticated={isAuthenticated} />} />
             <Route path="/picks" element={<PicksPage isAuthenticated={isAuthenticated} />} />
-            <Route path="/login" element={<Login authenticated={isAuthenticated} setAuthenticated={setIsAuthenticated} />} />
+            <Route
+              path="/login"
+              element={(
+                <Login
+                  authenticated={isAuthenticated}
+                  setAuthenticated={setIsAuthenticated}
+                />
+          )}
+            />
             <Route path="/leaderboard" element={<LeaderboardPage isAuthenticated={isAuthenticated} />} />
           </Routes>
         </Grid>

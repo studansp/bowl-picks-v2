@@ -10,7 +10,7 @@ import Paper from '@mui/material/Paper';
 import { makeStyles } from '@mui/styles';
 
 import Snackbar from '@mui/material/Snackbar';
-import Alert from '@mui/material/Alert';
+import Alert, { AlertColor } from '@mui/material/Alert';
 
 import { useState } from 'react';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
@@ -27,21 +27,37 @@ import {
   DroppableProvided,
   DropResult,
 } from 'react-beautiful-dnd';
-import { Picks, setPicks } from '../data';
+import { Game, Picks, setPicks } from '../data';
 
 interface Props {
+    canEdit?: boolean;
+    games: Game[];
     picks: Picks
 }
 
 const useStyles = makeStyles<Theme>((theme) => ({
+  tableCell: {
+    '& .MuiTableCell-body': {
+      padding: 0,
+    },
+  },
   header: {
     '& .MuiTableCell-head': {
-      color: theme.palette.primary.contrastText,
       backgroundColor: theme.palette.primary.light,
+      color: theme.palette.primary.contrastText,
     },
   },
   selected: {
+    backgroundColor: theme.palette.warning.light,
+    color: theme.palette.warning.contrastText,
+  },
+  selectedCorrect: {
     backgroundColor: theme.palette.success.light,
+    color: theme.palette.success.contrastText,
+  },
+  selectedIncorrect: {
+    backgroundColor: theme.palette.error.light,
+    color: theme.palette.error.contrastText,
   },
   actionsColumns: {
     width: '120px',
@@ -56,7 +72,7 @@ const formatSpread = (spread: number): string => {
   return spread.toString();
 };
 
-export const PicksGrid: React.FunctionComponent<Props> = ({ picks }: Props) => {
+export const PicksGrid: React.FunctionComponent<Props> = ({ canEdit = false, games, picks }: Props) => {
   const [saving, setSaving] = useState<boolean>(false);
   const [saved, setSaved] = useState<boolean>(false);
   const [error, setError] = useState<boolean>(false);
@@ -64,7 +80,6 @@ export const PicksGrid: React.FunctionComponent<Props> = ({ picks }: Props) => {
   const classes = useStyles();
 
   const updatePicksDebounced = useDebouncedCallback(
-    // function
     () => {
       setPicks(picksState).then(() => {
         setSaving(false);
@@ -72,7 +87,6 @@ export const PicksGrid: React.FunctionComponent<Props> = ({ picks }: Props) => {
       })
         .catch(() => setError(true));
     },
-    // delay in ms
     5_000,
   );
 
@@ -86,6 +100,8 @@ export const PicksGrid: React.FunctionComponent<Props> = ({ picks }: Props) => {
   const clonePicks = (): Picks => JSON.parse(JSON.stringify(picksState));
 
   const selectWinner = (id: string, winner: string): void => {
+    if (!canEdit) return;
+
     const clonedPicksState: Picks = clonePicks();
 
     const game = clonedPicksState.picks.find((p) => p.id === id)!;
@@ -131,6 +147,55 @@ export const PicksGrid: React.FunctionComponent<Props> = ({ picks }: Props) => {
   const theme = useTheme();
   const shouldShowGame = useMediaQuery(theme.breakpoints.up('md'));
 
+  const getAlertColor = (pick: Game, team: string): AlertColor => {
+    if (pick.winner !== team) {
+      return 'info';
+    }
+
+    const game = games.find((g) => g.id === pick.id)!;
+
+    if (!game.winner) {
+      return 'info';
+    }
+
+    if (game.winner === pick.winner) {
+      return 'success';
+    }
+
+    return 'error';
+  };
+
+  const getTeamCell = (pick: Game, team: string): JSX.Element => {
+    const spread = formatSpread(0 - parseFloat(pick.spread));
+
+    if (pick.winner !== team) {
+      return (
+        <TableCell>
+          {pick.home}
+          (
+          {spread}
+          )
+        </TableCell>
+      );
+    }
+
+    const alertSeverity: AlertColor = getAlertColor(pick, team);
+
+    return (
+      <TableCell
+        align="right"
+        onClick={() => selectWinner(pick.id, pick.home)}
+      >
+        <Alert severity={alertSeverity}>
+          {pick.home}
+          (
+          {spread}
+          )
+        </Alert>
+      </TableCell>
+    );
+  };
+
   return (
     <>
       <Snackbar
@@ -157,12 +222,12 @@ export const PicksGrid: React.FunctionComponent<Props> = ({ picks }: Props) => {
         </Alert>
       </Snackbar>
       <TableContainer component={Paper}>
-        <Table sx={{ minWidth: 650 }} aria-label="simple table">
+        <Table aria-label="simple table">
           <TableHead className={classes.header}>
             <TableRow>
               { shouldShowGame && <TableCell>Game</TableCell> }
               <TableCell align="right">Home (Spread)</TableCell>
-              <TableCell className={classes.actionsColumns}>Adjust Confidence</TableCell>
+              { canEdit && <TableCell className={classes.actionsColumns}>Adjust Confidence</TableCell>}
               <TableCell align="right">Away (Spread)</TableCell>
             </TableRow>
           </TableHead>
@@ -184,6 +249,7 @@ export const PicksGrid: React.FunctionComponent<Props> = ({ picks }: Props) => {
                         draggableProvided: DraggableProvided,
                       ) => (
                         <TableRow
+                          className={classes.tableCell}
                           ref={draggableProvided.innerRef}
                           {...draggableProvided.draggableProps}
                           key={pick.id}
@@ -195,16 +261,10 @@ export const PicksGrid: React.FunctionComponent<Props> = ({ picks }: Props) => {
                       {pick.id}
                     </TableCell>
                     )}
-                          <TableCell
-                            align="right"
-                            onClick={() => selectWinner(pick.id, pick.home)}
-                            className={pick.winner === pick.home ? classes.selected : ''}
-                          >
-                            {pick.home}
-                            (
-                            {formatSpread(0 - parseFloat(pick.spread))}
-                            )
-                          </TableCell>
+                          {getTeamCell(pick, pick.home)}
+                          {
+                          canEdit
+                          && (
                           <TableCell align="right" className={classes.actionsColumns}>
                             { pick.id !== picksState.picks[0].id
                         && (
@@ -222,16 +282,10 @@ export const PicksGrid: React.FunctionComponent<Props> = ({ picks }: Props) => {
                         </IconButton>
                         )}
                           </TableCell>
-                          <TableCell
-                            align="right"
-                            onClick={() => selectWinner(pick.id, pick.away)}
-                            className={pick.winner === pick.away ? classes.selected : ''}
-                          >
-                            {pick.away}
-                            (
-                            {pick.spread}
-                            )
-                          </TableCell>
+                          )
+
+                          }
+                          {getTeamCell(pick, pick.away)}
                         </TableRow>
                       )}
 
