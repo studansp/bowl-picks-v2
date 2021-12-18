@@ -30,11 +30,13 @@ export class Stack extends cdk.Stack {
       partitionKey: { name: 'id', type: dynamodb.AttributeType.STRING },
     });
 
+    const picksTable = new dynamodb.Table(this, 'Picks', {
+      billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
+      partitionKey: { name: 'username', type: dynamodb.AttributeType.STRING },
+    });
+
     const tables = [
-      new dynamodb.Table(this, 'Picks', {
-        billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
-        partitionKey: { name: 'username', type: dynamodb.AttributeType.STRING },
-      }),
+      picksTable,
       gameTable,
     ];
 
@@ -90,6 +92,10 @@ export class Stack extends cdk.Stack {
       runtime: lambda.Runtime.NODEJS_14_X,
       handler: 'index.handler',
       code: lambda.AssetCode.fromAsset('../backend/build'),
+      environment: {
+        GAME_TABLE: gameTable.tableName,
+        PICKS_TABLE: picksTable.tableName,
+      },
     });
 
     tables.forEach((table) => table.grantReadWriteData(handler));

@@ -1,5 +1,5 @@
 {
-  "name": "bowl-picks-v2",
+  "name": "bowl-picks-v2-backend",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
@@ -21,9 +21,6 @@
     "eslint-config-airbnb": "^19.0.2",
     "eslint-import-resolver-typescript": "^2.5.0",
     "eslint-plugin-import": "^2.25.3",
-    "eslint-plugin-jsx-a11y": "^6.5.1",
-    "eslint-plugin-react": "^7.27.1",
-    "eslint-plugin-react-hooks": "^4.3.0",
     "source-map-support": "^0.5.21",
     "typescript": "^4.5.3"
   }

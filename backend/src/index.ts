@@ -24,6 +24,8 @@ interface InputEvent {
   }
 }
 
+const UNAUTHORIZED = 401;
+
 const success = (response: unknown): Response => ({
   statusCode: 200,
   body: JSON.stringify(response),
@@ -194,7 +196,11 @@ export const handler = async (event: InputEvent): Promise<Response> => {
   }
 
   if (method === 'POST' && path === '/api/picks') {
-    result = await setPicks(username, JSON.parse(event.body));
+    return ({
+      statusCode: UNAUTHORIZED,
+      body: 'Games have started. You can no longer update picks.',
+      isBase64Encoded: true,
+    });
   }
 
   if (result === undefined || result == null) {

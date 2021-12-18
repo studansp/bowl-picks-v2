@@ -4,7 +4,7 @@ import {
   table,
 } from '@aws/dynamodb-data-mapper-annotations';
 
-@table('BowlPicksStack-Game86FD83D5-BLIBBKVOHZ5Z')
+@table(process.env.GAME_TABLE!)
 export class Game {
     @hashKey()
     id: string;
@@ -22,7 +22,7 @@ export class Game {
     winner?: string;
 }
 
-@table('BowlPicksStack-Picks6D45B940-1SEVIH0F0RVES')
+@table(process.env.PICKS_TABLE!)
 export class Picks {
     @hashKey()
     username: string;
