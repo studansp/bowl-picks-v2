@@ -35,11 +35,6 @@ export class Stack extends cdk.Stack {
       partitionKey: { name: 'username', type: dynamodb.AttributeType.STRING },
     });
 
-    const tables = [
-      picksTable,
-      gameTable,
-    ];
-
     new DynamoDBSeeder(this, 'GameSeeder', {
       table: gameTable,
       seeds: Seeds.fromInline(GAMES),
@@ -88,9 +83,9 @@ export class Stack extends cdk.Stack {
       },
     });
 
-    const handler = new lambda.Function(this, 'BackendLambda', {
+    const createHandler = (functionName: string): lambda.Function => new lambda.Function(this, functionName, {
       runtime: lambda.Runtime.NODEJS_14_X,
-      handler: 'index.handler',
+      handler: `index.${functionName}`,
       code: lambda.AssetCode.fromAsset('../backend/build'),
       environment: {
         GAME_TABLE: gameTable.tableName,
@@ -98,14 +93,18 @@ export class Stack extends cdk.Stack {
       },
     });
 
-    tables.forEach((table) => table.grantReadWriteData(handler));
-
-    const api = new apigateway.LambdaRestApi(this, 'ApiGateway', {
-      handler,
-      proxy: true,
+    const api = new apigateway.RestApi(this, 'Api', {
+      description: 'BowlPicks backendAPI',
       defaultCorsPreflightOptions: {
-        allowOrigins: apigateway.Cors.ALL_ORIGINS,
-        allowMethods: apigateway.Cors.ALL_METHODS,
+        allowHeaders: [
+          'Content-Type',
+          'X-Amz-Date',
+          'Authorization',
+          'X-Api-Key',
+        ],
+        allowMethods: ['OPTIONS', 'GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
+        allowCredentials: true,
+        allowOrigins: ['http://localhost:3000'],
       },
       defaultMethodOptions: {
         authorizationType: apigateway.AuthorizationType.COGNITO,
@@ -114,6 +113,31 @@ export class Stack extends cdk.Stack {
         }),
       },
     });
+
+    const apiRoot = api.root.addResource('api');
+
+    const picksResource = apiRoot.addResource('picks');
+    const picksResourceForUser = picksResource.addResource('{username}');
+
+    const getPicksHandler = createHandler('getPicks');
+    picksTable.grantReadData(getPicksHandler);
+
+    picksResourceForUser.addMethod('GET', new apigateway.LambdaIntegration(getPicksHandler, { proxy: true }));
+
+    const gamesResource = apiRoot.addResource('games');
+
+    const getGamesHandler = createHandler('getGames');
+    gameTable.grantReadData(getGamesHandler);
+
+    gamesResource.addMethod('GET', new apigateway.LambdaIntegration(getGamesHandler, { proxy: true }));
+
+    const leadersResource = apiRoot.addResource('leaders');
+
+    const getLeadersHandler = createHandler('getLeaders');
+    gameTable.grantReadData(getLeadersHandler);
+    picksTable.grantReadData(getLeadersHandler);
+
+    leadersResource.addMethod('GET', new apigateway.LambdaIntegration(getLeadersHandler, { proxy: true }));
 
     const zone = route53.HostedZone.fromLookup(this, 'Zone', {
       domainName: WEB_APP_DOMAIN,
@@ -133,7 +157,7 @@ export class Stack extends cdk.Stack {
       domainName: WEB_APP_DOMAIN,
       hostedZone: zone,
       region: 'us-east-1', // standard for acm certs
-      subjectAlternativeNames: [WEB_APP_DOMAIN_WWW]
+      subjectAlternativeNames: [WEB_APP_DOMAIN_WWW],
     });
 
     // Create CloudFront Distribution

@@ -58,14 +58,20 @@ const getBaseRequest = async (): Promise<BaseRequest> => Auth.currentAuthenticat
     },
   }));
 
+export const getUsername = async (): Promise<string> => {
+  const user = await Auth.currentAuthenticatedUser()
+
+  return user.username;
+}
+
 export const getGames = (): Promise<Game[]> => getBaseRequest()
   .then((request) => API.get(API_NAME, '/api/games', request));
 
 export const getLeaders = (): Promise<Leader[]> => getBaseRequest()
   .then((request) => API.get(API_NAME, '/api/leaders', request));
 
-export const getPicks = (): Promise<Picks> => getBaseRequest()
-  .then((request) => API.get(API_NAME, '/api/picks', request));
+export const getPicks = (username:string): Promise<Picks> => getBaseRequest()
+  .then((request) => API.get(API_NAME, `/api/picks/${username}`, request));
 
 export const setPicks = (picks: Picks): Promise<Picks> => getBaseRequest()
   .then((request) => API.post(API_NAME, '/api/picks', {

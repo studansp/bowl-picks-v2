@@ -8,7 +8,7 @@ import Typography from '@mui/material/Typography';
 
 import { useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom';
-import { getPicks, Picks } from '../data';
+import { getPicks, getUsername, Picks } from '../data';
 import { PicksGrid } from './PicksGrid';
 
 interface Props {
@@ -24,7 +24,7 @@ export const PicksPage: React.FunctionComponent<Props> = ({ isAuthenticated }: P
 
   const [picks, setPicks] = useState<Picks | null>(null);
 
-  const setup = async () => setPicks(await getPicks());
+  const setup = async () => setPicks(await getPicks(await getUsername()));
 
   useEffect(() => {
     setup();

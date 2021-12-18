@@ -3,7 +3,7 @@ export const GAMES = [
     id: 'Bahamas Bowl', home: 'Middle Tennessee', away: 'Toledo', spread: '-9.5', winner: 'Middle Tennessee',
   },
   {
-    id: 'Cure Bowl', home: 'Coastal Carolina', away: 'Northern Illinois', spread: '+10', winner: 'Coastal Carolina'
+    id: 'Cure Bowl', home: 'Coastal Carolina', away: 'Northern Illinois', spread: '+10', winner: 'Coastal Carolina',
   },
   {
     id: 'RoofClaim.com Boca Raton Bowl', home: 'Appalachian St', away: 'Western Kentucky', spread: '+2.5',

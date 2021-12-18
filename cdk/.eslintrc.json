@@ -35,7 +35,8 @@
         ],
         "max-classes-per-file": "off",
         "no-restricted-syntax": "off",
-        "no-param-reassign": "off"
+        "no-param-reassign": "off",
+        "max-len": ["error", { "code": 120 }]
     },
     "settings": {
         "import/resolver": {

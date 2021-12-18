@@ -1,44 +1,18 @@
+import { APIGatewayProxyHandler, APIGatewayProxyResult } from 'aws-lambda';
 import { DataMapper } from '@aws/dynamodb-data-mapper';
-import DynamoDB = require('aws-sdk/clients/dynamodb');
+import * as AWS from 'aws-sdk';
 import { Game, Picks } from './model';
 
-const client = new DynamoDB({ region: 'us-east-1' });
+const client = new AWS.DynamoDB({ region: 'us-east-1' });
 const mapper = new DataMapper({ client });
 
-interface Response {
-  statusCode: number;
-  body: string;
-  isBase64Encoded: boolean;
-}
-
-interface InputEvent {
-  body: string;
-  httpMethod: string;
-  path: string;
-  requestContext: {
-    authorizer: {
-      claims: {
-        'cognito:username': string
-      }
-    }
-  }
-}
-
-const UNAUTHORIZED = 401;
-
-const success = (response: unknown): Response => ({
+const success = (response: unknown): APIGatewayProxyResult => ({
   statusCode: 200,
   body: JSON.stringify(response),
   isBase64Encoded: true,
 });
 
-const notFound = (): Response => ({
-  statusCode: 404,
-  body: 'Not found',
-  isBase64Encoded: true,
-});
-
-const getGames = async (): Promise<Game[]> => {
+const getGamesRaw = async (): Promise<Game[]> => {
   const iterator = mapper.scan(Game);
 
   const result: Game[] = [];
@@ -50,13 +24,15 @@ const getGames = async (): Promise<Game[]> => {
   return result;
 };
 
-const getPicks = async (username: string): Promise<Picks> => {
+export const getGames: APIGatewayProxyHandler = async () => success(await getGamesRaw());
+
+export const getPicks: APIGatewayProxyHandler = async (event) => {
   const picks = new Picks();
 
-  picks.username = username;
+  picks.username = event.pathParameters!.username!;
 
   try {
-    return await mapper.get(picks);
+    return await success(picks);
   } catch (e) {
     const { name } = e as any;
 
@@ -64,9 +40,9 @@ const getPicks = async (username: string): Promise<Picks> => {
       throw e;
     }
 
-    picks.picks = await getGames();
+    picks.picks = await getGamesRaw();
 
-    return picks;
+    return success(picks);
   }
 };
 
@@ -76,9 +52,9 @@ interface Leader {
   possible: number;
 }
 
-const getLeaders = async (): Promise<Leader[]> => {
+export const getLeaders: APIGatewayProxyHandler = async () => {
   const result: Leader[] = [];
-  const games = await getGames();
+  const games = await getGamesRaw();
 
   const gamesMap = games.reduce((prev, current) => {
     prev[current.id] = current;
@@ -131,15 +107,16 @@ const getLeaders = async (): Promise<Leader[]> => {
     return 0;
   });
 
-  return result;
+  return success(result);
 };
 
-const setPicks = async (username: string, body: Picks): Promise<Picks> => {
+export const setPicks: APIGatewayProxyHandler = async (event) => {
   const picks = new Picks();
+  picks.username = event.requestContext.authorizer!.claims['cognito:username'];
 
-  picks.username = username;
+  const body: Picks = JSON.parse(event.body!);
 
-  const allGames = await getGames();
+  const allGames = await getGamesRaw();
 
   interface GameWithOrder {
     order: number;
@@ -159,8 +136,10 @@ const setPicks = async (username: string, body: Picks): Promise<Picks> => {
       }
     }
 
+    const someVeryLargeIndex = allGames.length + 1;
+
     prev.push({
-      order: foundIndex ?? 1000,
+      order: foundIndex ?? someVeryLargeIndex,
       game,
     });
 
@@ -171,41 +150,5 @@ const setPicks = async (username: string, body: Picks): Promise<Picks> => {
     .sort((a, b) => a.order - b.order)
     .map((p) => p.game);
 
-  return mapper.put(picks);
-};
-
-export const handler = async (event: InputEvent): Promise<Response> => {
-  const method = event.httpMethod;
-  const { path } = event;
-  const username = event.requestContext.authorizer.claims['cognito:username'];
-
-  console.log(`Handling event ${method} ${path} ${username}`);
-
-  let result: unknown;
-
-  if (method === 'GET' && path === '/api/games') {
-    result = await getGames();
-  }
-
-  if (method === 'GET' && path === '/api/picks') {
-    result = await getPicks(username);
-  }
-
-  if (method === 'GET' && path === '/api/leaders') {
-    result = await getLeaders();
-  }
-
-  if (method === 'POST' && path === '/api/picks') {
-    return ({
-      statusCode: UNAUTHORIZED,
-      body: 'Games have started. You can no longer update picks.',
-      isBase64Encoded: true,
-    });
-  }
-
-  if (result === undefined || result == null) {
-    return notFound();
-  }
-
-  return success(result);
+  return success(mapper.put(picks));
 };
