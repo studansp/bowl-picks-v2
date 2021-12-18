@@ -87,8 +87,8 @@ const getLeaders = async (): Promise<Leader[]> => {
   const iterator = mapper.scan(Picks);
 
   for await (const picks of iterator) {
-    let totalPoints = 0; let
-      possiblePoints = 0;
+    let totalPoints = 0;
+    let possiblePoints = 0;
     let currentPoints = games.length;
 
     for (const pick of picks.picks) {
