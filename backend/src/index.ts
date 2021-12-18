@@ -32,7 +32,7 @@ export const getPicks: APIGatewayProxyHandler = async (event) => {
   picks.username = event.pathParameters!.username!;
 
   try {
-    return await success(picks);
+    return await success(await mapper.get(picks));
   } catch (e) {
     const { name } = e as any;
 

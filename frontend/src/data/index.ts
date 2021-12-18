@@ -59,10 +59,10 @@ const getBaseRequest = async (): Promise<BaseRequest> => Auth.currentAuthenticat
   }));
 
 export const getUsername = async (): Promise<string> => {
-  const user = await Auth.currentAuthenticatedUser()
+  const user = await Auth.currentAuthenticatedUser();
 
   return user.username;
-}
+};
 
 export const getGames = (): Promise<Game[]> => getBaseRequest()
   .then((request) => API.get(API_NAME, '/api/games', request));

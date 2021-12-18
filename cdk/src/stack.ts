@@ -120,6 +120,7 @@ export class Stack extends cdk.Stack {
     const picksResourceForUser = picksResource.addResource('{username}');
 
     const getPicksHandler = createHandler('getPicks');
+    gameTable.grantReadData(getPicksHandler);
     picksTable.grantReadData(getPicksHandler);
 
     picksResourceForUser.addMethod('GET', new apigateway.LambdaIntegration(getPicksHandler, { proxy: true }));
