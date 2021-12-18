@@ -113,14 +113,20 @@ const getLeaders = async (): Promise<Leader[]> => {
   }
 
   result.sort((a, b) => {
-    if (a.points !== b.points) {
-      return a.points - b.points;
+    if (a.points < b.points) {
+      return 1;
     }
-    if (a.possible !== b.possible) {
-      return a.possible - a.possible;
+    if (a.points > b.points) {
+      return -1;
+    }
+    if (a.possible < b.possible) {
+      return 1;
+    }
+    if (a.possible > b.possible) {
+      return -1;
     }
 
-    return a.username.localeCompare(b.username);
+    return 0;
   });
 
   return result;

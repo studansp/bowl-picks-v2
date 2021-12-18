@@ -4,7 +4,8 @@
   "private": true,
   "dependencies": {
     "@aws/dynamodb-data-mapper": "^0.7.3",
-    "@aws/dynamodb-data-mapper-annotations": "^0.7.3"
+    "@aws/dynamodb-data-mapper-annotations": "^0.7.3",
+    "aws-sdk": "^2.1046.0"
   },
   "scripts": {
     "clean": "rm -rf build",
