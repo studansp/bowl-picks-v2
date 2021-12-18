@@ -82,7 +82,11 @@ export const Login: React.FC<Props> = ({ authenticated, setAuthenticated }: Prop
   };
 
   if (loading) {
-    return (<CircularProgress />);
+    return (
+      <Grid item xs={12}>
+        <CircularProgress />
+      </Grid>
+    );
   } if (authenticated) {
     return (
       <Navigate to={{ pathname: '/picks' }} />
@@ -90,7 +94,7 @@ export const Login: React.FC<Props> = ({ authenticated, setAuthenticated }: Prop
   }
 
   return (
-    <Grid container spacing={2}>
+    <>
       <Grid item xs={12}>
         <ToggleButtonGroup
           color="primary"
@@ -103,84 +107,99 @@ export const Login: React.FC<Props> = ({ authenticated, setAuthenticated }: Prop
           <ToggleButton value="confirm">Confirm</ToggleButton>
         </ToggleButtonGroup>
       </Grid>
-      {
-        authState === 'confirm'
+      <Grid item xs={12}>
+        <form>
+          <Grid container spacing={2}>
+            {
+      authState === 'confirm'
 
-      && (
-      <Grid item xs={12}>
-        <Typography>
-          An email has been sent to
-          {' '}
-          {email}
-          {' '}
-          with a confirmation code. Copy the confirmation code
-          below to finish account creation.
-        </Typography>
-      </Grid>
-      )
-      }
-      <Grid item xs={12}>
-        <TextField
-          required
-          label="Username"
-          value={username}
-          onChange={(event) => setUsername(event.currentTarget.value)}
-        />
-      </Grid>
-      <Grid item xs={12}>
-        <TextField
-          type="password"
-          required
-          label="Password"
-          value={password}
-          onChange={(event) => setPassword(event.currentTarget.value)}
-        />
-      </Grid>
-      {
-        authState === 'signup'
-
-      && (
-      <Grid item xs={12}>
-        <TextField
-          type="email"
-          required
-          label="Email"
-          value={email}
-          onChange={(event) => setEmail(event.currentTarget.value)}
-        />
-      </Grid>
-      )
-      }
-      {
-        authState === 'confirm'
-
-      && (
-      <Grid item xs={12}>
-        <TextField
-          type="code"
-          required
-          label="Code"
-          value={code}
-          onChange={(event) => setCode(event.currentTarget.value)}
-        />
-      </Grid>
-      )
-      }
-      <Grid item xs={12}>
-        {
-          authState === 'signup'
-          && <Button onClick={() => register()}>Register</Button>
-        }
-        {
-          authState === 'login'
-          && <Button onClick={() => login()}>Login</Button>
-        }
-        {
-          authState === 'confirm'
-          && <Button onClick={() => confirm()}>Confirm</Button>
-        }
-      </Grid>
-      { error && <Alert severity="error">{error}</Alert>}
+    && (
+    <Grid item xs={12}>
+      <Typography>
+        An email has been sent to
+        {' '}
+        {email}
+        {' '}
+        with a confirmation code. Copy the confirmation code
+        below to finish account creation.
+      </Typography>
     </Grid>
+    )
+    }
+            <Grid item xs={12}>
+              <TextField
+                required
+                label="Username"
+                value={username}
+                onChange={(event) => setUsername(event.currentTarget.value)}
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                type="password"
+                required
+                label="Password"
+                value={password}
+                onChange={(event) => setPassword(event.currentTarget.value)}
+              />
+            </Grid>
+            {
+      authState === 'signup'
+
+    && (
+    <Grid item xs={12}>
+      <TextField
+        type="email"
+        required
+        label="Email"
+        value={email}
+        onChange={(event) => setEmail(event.currentTarget.value)}
+      />
+    </Grid>
+    )
+    }
+            {
+      authState === 'confirm'
+
+    && (
+    <Grid item xs={12}>
+      <TextField
+        type="code"
+        required
+        label="Code"
+        value={code}
+        onChange={(event) => setCode(event.currentTarget.value)}
+      />
+    </Grid>
+    )
+    }
+            <Grid item xs={12}>
+              {
+        authState === 'signup'
+        && <Button onClick={() => register()} type="submit">Register</Button>
+      }
+              {
+        authState === 'login'
+        && <Button onClick={() => login()} type="submit">Login</Button>
+      }
+              {
+        authState === 'confirm'
+        && <Button onClick={() => confirm()} type="submit">Confirm</Button>
+      }
+            </Grid>
+
+          </Grid>
+        </form>
+      </Grid>
+      {
+        error
+
+    && (
+    <Grid item xs={12}>
+      <Alert severity="error">{error}</Alert>
+    </Grid>
+    )
+      }
+    </>
   );
 };

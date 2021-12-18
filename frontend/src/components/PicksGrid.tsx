@@ -165,15 +165,15 @@ export const PicksGrid: React.FunctionComponent<Props> = ({ canEdit = false, gam
     return 'error';
   };
 
-  const getTeamCell = (pick: Game, team: string): JSX.Element => {
-    const spread = formatSpread(0 - parseFloat(pick.spread));
+  const getTeamCell = (pick: Game, team: string, spread: number): JSX.Element => {
+    const spreadFormatted = formatSpread(spread);
 
     if (pick.winner !== team) {
       return (
         <TableCell>
           {team}
           (
-          {spread}
+          {spreadFormatted}
           )
         </TableCell>
       );
@@ -189,7 +189,7 @@ export const PicksGrid: React.FunctionComponent<Props> = ({ canEdit = false, gam
         <Alert severity={alertSeverity}>
           {team}
           (
-          {spread}
+          {spreadFormatted}
           )
         </Alert>
       </TableCell>
@@ -261,7 +261,7 @@ export const PicksGrid: React.FunctionComponent<Props> = ({ canEdit = false, gam
                       {pick.id}
                     </TableCell>
                     )}
-                          {getTeamCell(pick, pick.home)}
+                          {getTeamCell(pick, pick.home, 0 - parseFloat(pick.spread))}
                           {
                           canEdit
                           && (
@@ -285,7 +285,7 @@ export const PicksGrid: React.FunctionComponent<Props> = ({ canEdit = false, gam
                           )
 
                           }
-                          {getTeamCell(pick, pick.away)}
+                          {getTeamCell(pick, pick.away, parseFloat(pick.spread))}
                         </TableRow>
                       )}
 
