@@ -171,7 +171,7 @@ export const PicksGrid: React.FunctionComponent<Props> = ({ canEdit = false, gam
     if (pick.winner !== team) {
       return (
         <TableCell>
-          {pick.home}
+          {team}
           (
           {spread}
           )
@@ -184,10 +184,10 @@ export const PicksGrid: React.FunctionComponent<Props> = ({ canEdit = false, gam
     return (
       <TableCell
         align="right"
-        onClick={() => selectWinner(pick.id, pick.home)}
+        onClick={() => selectWinner(pick.id, team)}
       >
         <Alert severity={alertSeverity}>
-          {pick.home}
+          {team}
           (
           {spread}
           )

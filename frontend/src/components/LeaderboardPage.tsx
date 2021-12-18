@@ -14,7 +14,13 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
-import { getLeaders, Leader } from '../data';
+import Modal from '@mui/material/Modal';
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import {
+  Game, getGames, getLeaders, getPicks, Leader,
+} from '../data';
+import { PicksGrid } from './PicksGrid';
 
 interface Props {
   isAuthenticated: boolean;
@@ -27,6 +33,22 @@ const useStyles = makeStyles<Theme>((theme) => ({
       backgroundColor: theme.palette.primary.light,
     },
   },
+  modal: {
+    position: 'absolute',
+    // top: '50%',
+    // left: '50%',
+    transform: 'translate(5%)',
+    height: '100%',
+    width: '90%',
+    bgcolor: 'background.paper',
+    border: '2px solid #000',
+    // boxShadow: 24,
+    p: 4,
+    overflow: 'scroll',
+  },
+  userButton: {
+    width: '200px',
+  },
 }));
 
 export const LeaderboardPage: React.FunctionComponent<Props> = ({ isAuthenticated }: Props) => {
@@ -36,9 +58,32 @@ export const LeaderboardPage: React.FunctionComponent<Props> = ({ isAuthenticate
     );
   }
 
-  const [leaders, setLeaders] = useState<Leader[] | null>(null);
+  const progressElement = (
+    <CircularProgress />
+  );
 
-  const setup = async () => setLeaders(await getLeaders());
+  const [leaders, setLeaders] = useState<Leader[] | null>(null);
+  const [games, setGames] = useState<Game[] | null>(null);
+  const [isModalOpen, setModalOpen] = useState<boolean>(false);
+  const [modalContent, setModalContent] = useState<JSX.Element>(progressElement);
+
+  const openModel = async (username: string): Promise<void> => {
+    setModalOpen(true);
+
+    getPicks(username).then((picks) => setModalContent((
+      <PicksGrid games={games!} picks={picks} />
+    )));
+  };
+
+  const closeModel = async (): Promise<void> => {
+    setModalOpen(false);
+    setModalContent(progressElement);
+  };
+
+  const setup = async () => {
+    setLeaders(await getLeaders());
+    setGames(await getGames());
+  };
 
   useEffect(() => {
     setup();
@@ -46,18 +91,27 @@ export const LeaderboardPage: React.FunctionComponent<Props> = ({ isAuthenticate
 
   const classes = useStyles();
 
-  if (leaders === null) {
-    return (
-      <CircularProgress />
-    );
+  if (leaders === null || games === null) {
+    return progressElement;
   }
 
   return (
     <Grid item xs={12}>
+      <Modal
+        open={isModalOpen}
+        onClose={closeModel}
+        aria-labelledby="modal-modal-title"
+        aria-describedby="modal-modal-description"
+      >
+        <Box className={classes.modal}>
+          {modalContent}
+        </Box>
+      </Modal>
       <TableContainer component={Paper}>
-        <Table sx={{ minWidth: 650 }} aria-label="simple table">
+        <Table aria-label="simple table">
           <TableHead className={classes.header}>
             <TableRow>
+              <TableCell />
               <TableCell>User</TableCell>
               <TableCell>Points</TableCell>
               <TableCell>Possible</TableCell>
@@ -66,7 +120,14 @@ export const LeaderboardPage: React.FunctionComponent<Props> = ({ isAuthenticate
           <TableBody>
             { leaders.map((leader) => (
               <TableRow key={leader.username}>
-                <TableCell>{leader.username}</TableCell>
+                <TableCell align="right" width="120px">
+                  <Button onClick={() => openModel(leader.username)} variant="contained">
+                    See picks
+                  </Button>
+                </TableCell>
+                <TableCell>
+                  {leader.username}
+                </TableCell>
                 <TableCell>{leader.points}</TableCell>
                 <TableCell>{leader.possible}</TableCell>
               </TableRow>
