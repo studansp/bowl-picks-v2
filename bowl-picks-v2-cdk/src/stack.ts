@@ -86,7 +86,7 @@ export class Stack extends cdk.Stack {
     const createHandler = (functionName: string): lambda.Function => new lambda.Function(this, functionName, {
       runtime: lambda.Runtime.NODEJS_14_X,
       handler: `index.${functionName}`,
-      code: lambda.AssetCode.fromAsset('../backend/build'),
+      code: lambda.AssetCode.fromAsset('../bowl-picks-v2-backend/dist'),
       environment: {
         GAME_TABLE: gameTable.tableName,
         PICKS_TABLE: picksTable.tableName,
@@ -207,7 +207,7 @@ export class Stack extends cdk.Stack {
 
     // Deploy site to s3
     new deploy.BucketDeployment(this, 'Deployment', {
-      sources: [deploy.Source.asset('../frontend/build')],
+      sources: [deploy.Source.asset('../bowl-picks-v2-frontend/build')],
       destinationBucket: siteBucket,
       distribution: siteDistribution,
       distributionPaths: ['/*'],

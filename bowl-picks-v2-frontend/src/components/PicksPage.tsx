@@ -10,9 +10,8 @@ import { makeStyles } from '@mui/styles';
 import { useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import Alert from '@mui/material/Alert';
-import {
-  Game, getGames, getPicks, getUsername, Picks,
-} from '../data';
+import { Game, Picks } from 'bowl-picks-v2-model';
+import { getGames, getPicks, getUsername } from '../data';
 import { PicksGrid } from './PicksGrid';
 
 interface Props {

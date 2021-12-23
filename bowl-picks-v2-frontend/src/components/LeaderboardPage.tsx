@@ -17,9 +17,8 @@ import Paper from '@mui/material/Paper';
 import Modal from '@mui/material/Modal';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
-import {
-  Game, getGames, getLeaders, getPicks, Leader,
-} from '../data';
+import { Game, Leader } from 'bowl-picks-v2-model';
+import { getGames, getLeaders, getPicks } from '../data';
 import { PicksGrid } from './PicksGrid';
 
 interface Props {

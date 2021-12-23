@@ -4,29 +4,31 @@ import {
   table,
 } from '@aws/dynamodb-data-mapper-annotations';
 
+import * as model from 'bowl-picks-v2-model';
+
 @table(process.env.GAME_TABLE!)
-export class Game {
+export class Game implements Partial<model.Game> {
     @hashKey()
-    id: string;
+    id!: string;
 
     @attribute()
-    home: string;
+    home!: string;
 
     @attribute()
-    away: string;
+    away!: string;
 
     @attribute()
-    spread: string;
+    spread!: string;
 
     @attribute()
     winner?: string;
 }
 
 @table(process.env.PICKS_TABLE!)
-export class Picks {
+export class Picks implements Partial<model.Picks> {
     @hashKey()
-    username: string;
+    username!: string;
 
     @attribute()
-    picks: Game[];
+    picks!: Game[];
 }

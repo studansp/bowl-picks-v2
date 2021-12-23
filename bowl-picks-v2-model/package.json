@@ -1,25 +1,23 @@
 {
-  "name": "bowl-picks-v2-backend",
+  "name": "bowl-picks-v2-model",
   "version": "0.1.0",
   "private": true,
+  "main": "dist/lib/index.js",
+  "typings": "dist/types/index.d.ts",
   "dependencies": {
-    "@aws/dynamodb-data-mapper": "^0.7.3",
-    "@aws/dynamodb-data-mapper-annotations": "^0.7.3",
-    "aws-sdk": "^2.1046.0"
   },
   "scripts": {
-    "clean": "rm -rf build",
+    "clean": "rm -rf dist",
     "lint": "eslint src/**",
     "fix": "eslint --fix src/**",
-    "build": "tsc --target ES2018 --moduleResolution node --module commonjs --emitDecoratorMetadata true --experimentalDecorators true --outDir build/ src/index.ts && cp -r node_modules build"
+    "build": "npm run clean && npm run lint && tsc --module commonjs"
   },
   "devDependencies": {
-    "@types/aws-lambda": "^8.10.88",
     "@types/node": "^16.11.12",
     "@typescript-eslint/eslint-plugin": "^5.6.0",
     "@typescript-eslint/parser": "^5.6.0",
     "eslint": "^7.32.0",
-    "eslint-config-airbnb": "^19.0.2",
+    "eslint-config-airbnb-base": "^15.0.0",
     "eslint-import-resolver-typescript": "^2.5.0",
     "eslint-plugin-import": "^2.25.3",
     "source-map-support": "^0.5.21",

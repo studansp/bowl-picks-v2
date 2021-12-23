@@ -1,6 +1,7 @@
 import { APIGatewayProxyHandler, APIGatewayProxyResult } from 'aws-lambda';
 import { DataMapper } from '@aws/dynamodb-data-mapper';
 import * as AWS from 'aws-sdk';
+import { Leader } from 'bowl-picks-v2-model';
 import { Game, Picks } from './model';
 
 const client = new AWS.DynamoDB({ region: 'us-east-1' });
@@ -45,12 +46,6 @@ export const getPicks: APIGatewayProxyHandler = async (event) => {
     return success(picks);
   }
 };
-
-interface Leader {
-  username: string;
-  points: number;
-  possible: number;
-}
 
 export const getLeaders: APIGatewayProxyHandler = async () => {
   const result: Leader[] = [];

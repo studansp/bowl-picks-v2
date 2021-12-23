@@ -22,10 +22,10 @@
     "aws-amplify": "^4.3.10"
   },
   "scripts": {
-    "clean": "rm -rf build",
+    "clean": "rm -rf cdk cdk.out",
     "lint": "eslint src/**",
     "fix": "eslint --fix src/**",
-    "build": "tsc --target ES2018 --moduleResolution node --module commonjs --outDir cdk/ src/index.ts",
+    "build": "npm run clean && tsc",
     "deploy": "npm run clean && npm run build && cdk deploy"
   },
   "devDependencies": {
@@ -33,7 +33,7 @@
     "@typescript-eslint/eslint-plugin": "^5.6.0",
     "@typescript-eslint/parser": "^5.6.0",
     "eslint": "^7.32.0",
-    "eslint-config-airbnb": "^19.0.2",
+    "eslint-config-airbnb-base": "^15.0.0",
     "eslint-import-resolver-typescript": "^2.5.0",
     "eslint-plugin-import": "^2.25.3",
     "eslint-plugin-jsx-a11y": "^6.5.1",

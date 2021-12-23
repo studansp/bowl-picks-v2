@@ -1,23 +1,5 @@
 import { Amplify, API, Auth } from 'aws-amplify';
-
-export interface Game {
-    id: string;
-    home: string;
-    away: string;
-    spread: string;
-    winner?: string;
-}
-
-export interface Leader {
-  username: string;
-  points: number;
-  possible: number;
-}
-
-export interface Picks {
-    username: string;
-    picks: Game[];
-}
+import { Game, Leader, Picks } from 'bowl-picks-v2-model';
 
 const API_NAME = 'Backend';
 

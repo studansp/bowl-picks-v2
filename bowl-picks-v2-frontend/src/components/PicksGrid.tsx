@@ -27,7 +27,9 @@ import {
   DroppableProvided,
   DropResult,
 } from 'react-beautiful-dnd';
-import { Game, Picks, setPicks } from '../data';
+import { Game, Picks } from 'bowl-picks-v2-model';
+
+import { setPicks } from '../data';
 
 interface Props {
     canEdit?: boolean;
