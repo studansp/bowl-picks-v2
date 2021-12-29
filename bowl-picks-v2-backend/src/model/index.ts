@@ -12,6 +12,9 @@ export class Game implements Partial<model.Game> {
     id!: string;
 
     @attribute()
+    canceled?: boolean;
+
+    @attribute()
     home!: string;
 
     @attribute()

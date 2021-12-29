@@ -59,27 +59,31 @@ export const getLeaders: APIGatewayProxyHandler = async () => {
 
   const iterator = mapper.scan(Picks);
 
-  for await (const picks of iterator) {
+  for await (const rawPicks of iterator) {
     let totalPoints = 0;
     let possiblePoints = 0;
-    let currentPoints = games.length;
+    let currentPoints = 1;
 
-    for (const pick of picks.picks) {
+    const picks: Game[] = rawPicks.picks.reverse();
+
+    for (const pick of picks) {
       const game = gamesMap[pick.id];
 
-      if (game.winner) {
-        if (pick.winner === game.winner) {
-          totalPoints += currentPoints;
+      if (game.canceled !== true) {
+        if (game.winner) {
+          if (pick.winner === game.winner) {
+            totalPoints += currentPoints;
+          }
+        } else {
+          possiblePoints += currentPoints;
         }
-      } else {
-        possiblePoints += currentPoints;
-      }
 
-      currentPoints -= 1;
+        currentPoints += 1;
+      }
     }
 
     result.push({
-      username: picks.username,
+      username: rawPicks.username,
       points: totalPoints,
       possible: possiblePoints + totalPoints,
     });

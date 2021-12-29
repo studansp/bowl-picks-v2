@@ -38,6 +38,16 @@ interface Props {
 }
 
 const useStyles = makeStyles<Theme>((theme) => ({
+  canceled: {
+    '& .MuiTableCell-body': {
+      fontWeight: 'bold',
+      textDecoration: 'line-through',
+    },
+    '& .MuiAlert-message': {
+      fontWeight: 'bold',
+      textDecoration: 'line-through',
+    },
+  },
   tableCell: {
     '& .MuiTableCell-body': {
       padding: 0,
@@ -167,6 +177,16 @@ export const PicksGrid: React.FunctionComponent<Props> = ({ canEdit = false, gam
     return 'error';
   };
 
+  const getRowClass = (pick: Game): string => {
+    const game = games.find((g) => g.id === pick.id)!;
+
+    if (game.canceled === true) {
+      return `${classes.tableCell} ${classes.canceled}`;
+    }
+
+    return classes.tableCell;
+  };
+
   const getTeamCell = (pick: Game, team: string, spread: number): JSX.Element => {
     const spreadFormatted = formatSpread(spread);
 
@@ -251,7 +271,7 @@ export const PicksGrid: React.FunctionComponent<Props> = ({ canEdit = false, gam
                         draggableProvided: DraggableProvided,
                       ) => (
                         <TableRow
-                          className={classes.tableCell}
+                          className={getRowClass(pick)}
                           ref={draggableProvided.innerRef}
                           {...draggableProvided.draggableProps}
                           key={pick.id}
@@ -259,7 +279,7 @@ export const PicksGrid: React.FunctionComponent<Props> = ({ canEdit = false, gam
                         >
                           { shouldShowGame
                     && (
-                    <TableCell component="th" scope="row">
+                    <TableCell scope="row">
                       {pick.id}
                     </TableCell>
                     )}

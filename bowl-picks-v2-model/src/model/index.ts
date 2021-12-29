@@ -2,6 +2,7 @@ export interface Game {
   id: string;
   home: string;
   away: string;
+  canceled?: boolean;
   spread: string;
   winner?: string;
 }

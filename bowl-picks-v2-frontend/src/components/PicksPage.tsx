@@ -19,6 +19,10 @@ interface Props {
 }
 
 const useStyles = makeStyles(() => ({
+  canceled: {
+    fontWeight: 'bold',
+    textDecoration: 'line-through',
+  },
   instructionsAlert: {
     width: '300px',
   },
@@ -88,6 +92,11 @@ export const PicksPage: React.FunctionComponent<Props> = ({ isAuthenticated }: P
           <ListItem>
             <Alert severity="info" className={classes.instructionsAlert}>
               Indicates a game that is not yet complete
+            </Alert>
+          </ListItem>
+          <ListItem>
+            <Alert severity="info" className={`${classes.instructionsAlert} ${classes.canceled}`}>
+              Indicates a game that has been canceled
             </Alert>
           </ListItem>
           <ListItem>
